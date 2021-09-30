@@ -21,7 +21,10 @@ const reducer = (state, action) => {
         after: state.after.slice(1),
       };
     case ACTIONS.RECORD:
-      return {};
+      return {
+        before: [...state.before, state.current],
+        current: action.payload,
+      };
     default:
       return state;
   }
@@ -43,8 +46,7 @@ const redo = () => {
 };
 
 const record = (val) => {
-  setBefore((before) => [...before, current]);
-  setCurrent(val);
+  dispatch({ type: ACTIONS.CURRENT, payload: val });
 };
 
 return {
@@ -53,6 +55,7 @@ return {
   redo,
   current,
 };
+
 function App() {
   const { current, undo, redo, record } = useRecord('#FF0000');
 
@@ -77,5 +80,5 @@ function App() {
     </>
   );
 }
-
 export default App;
+
