@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useState, useReducer } from 'react';
+
+const reducer = () => {};
 
 const useRecord = (init) => {
   const [before, setBefore] = useState([]);
   const [current, setCurrent] = useState(init);
   const [after, setAfter] = useState([]);
+
+  const [state, dispatch] = useReducer(reducer, {
+    before: [],
+    current: init,
+    after: [],
+  });
 
   const undo = () => {
     setAfter((after) => [current, ...after]);
