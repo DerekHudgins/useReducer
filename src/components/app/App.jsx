@@ -1,84 +1,45 @@
-import React, { useState, useReducer } from 'react';
+import React, { useReducer } from 'react';
+import { colorReducer, initialState } from '../../reducers/colorReducer';
+import { ACTIONS } from '../../actions/colorActions';
 
-const ACTIONS = {
-  UNDO: 'undo',
-  REDO: 'redo',
-  CURRENT: 'current',
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case ACTIONS.UNDO:
-      return {
-        after: [state.current, ...state.after],
-        current: state.before[state.before.length - 1],
-        before: state.before.slice(0, -1),
-      };
-    case ACTIONS.REDO:
-      return {
-        before: [state.before, state.current],
-        current: state.after[0],
-        after: state.after.slice(1),
-      };
-    case ACTIONS.RECORD:
-      return {
-        before: [...state.before, state.current],
-        current: action.payload,
-      };
-    default:
-      return state;
-  }
-};
-
-const useRecord = (init) => {
-  const [state, dispatch] = useReducer(reducer, {
-    before: [],
-    current: init,
-    after: [],
-  });
-  const undo = () => {
-    dispatch({ type: ACTIONS.UNDO });
-  };
-};
-
-const redo = () => {
-  dispatch({ type: ACTIONS.REDO });
-};
-
-const record = (val) => {
-  dispatch({ type: ACTIONS.CURRENT, payload: val });
-};
-
-return {
-  undo,
-  record,
-  redo,
-  current,
-};
-
-function App() {
-  const { current, undo, redo, record } = useRecord('#FF0000');
+const App = () => {
+  const [state, dispatch] = useReducer(colorReducer, initialState);
+  const { current, after, before } = state;
 
   return (
     <>
-      <button aria-label="undo-button" onClick={undo}>
+      <button
+        aria-label="undo-button"
+        onClick={() => dispatch({ type: ACTIONS.UNDO })}
+        disabled={!before.length}
+      >
         undo
       </button>
-      <button aria-label="redo-button" onClick={redo}>
+      <button
+        aria-label="redo-button"
+        onClick={() => dispatch({ type: ACTIONS.REDO })}
+        disabled={!after.length}
+      >
         redo
       </button>
       <input
         aria-label="color-picker"
         type="color"
         value={current}
-        onChange={({ target }) => record(target.value)}
+        onChange={({ target }) =>
+          dispatch({ type: ACTIONS.RECORD, payload: target.value })
+        }
       />
       <div
         aria-label="display"
-        style={{ backgroundColor: current, width: '10rem', height: '10rem' }}
+        style={{
+          backgroundColor: current,
+          width: '10rem',
+          height: '10rem',
+        }}
       ></div>
     </>
   );
-}
-export default App;
+};
 
+export default App;
