@@ -15,7 +15,11 @@ const reducer = (state, action) => {
         before: state.before.slice(0, -1),
       };
     case ACTIONS.REDO:
-      return {};
+      return {
+        before: [state.before, state.current],
+        current: state.after[0],
+        after: state.after.slice(1),
+      };
     case ACTIONS.RECORD:
       return {};
     default:
@@ -23,22 +27,19 @@ const reducer = (state, action) => {
   }
 };
 
-const [state, dispatch] = useReducer(reducer, {
-  before: [],
-  current: init,
-  after: [],
-});
-
-const undo = () => {
-  setAfter((after) => [current, ...after]);
-  setCurrent(before[before.length - 1]);
-  setBefore((before) => before.slice(0, -1));
+const useRecord = (init) => {
+  const [state, dispatch] = useReducer(reducer, {
+    before: [],
+    current: init,
+    after: [],
+  });
+  const undo = () => {
+    dispatch({ type: ACTIONS.UNDO });
+  };
 };
 
 const redo = () => {
-  setBefore((before) => [...before, current]);
-  setCurrent(after[0]);
-  setAfter((after) => after.slice(1));
+  dispatch({ type: ACTIONS.REDO });
 };
 
 const record = (val) => {
